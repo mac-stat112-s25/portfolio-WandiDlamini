@@ -3,3 +3,28 @@ title: "Univariate Viz"
 ---
 
 Use this file to generate a professional looking **univariate** visualization. The visualization will not perfect the first time but you are expected to improve on it throughout the semester especially after covering advanced topics such as effective viz.
+
+```{r, messaege = FALSE}
+library(tidyverse)
+```
+
+```{r}
+hikes <- read.csv("https://mac-stat.github.io/data/high_peaks.csv")
+```
+
+```{r}
+#| fig-cap: "Distribution of Hike Ratings on Level of Difficulty"
+#| fig-alt: "This bar plot showcases the distribution of hike ratings. 8 hikes were rated difficult; 11 were rated easy; 27 were rated moderate. The link to this data set is https://mac-stat.github.io/data/high_peaks.csv"
+
+ggplot(hikes, aes(x = rating)) +
+  geom_bar(color = "black", fill = "#0073C2FF") +  # A more visually appealing color
+  geom_text(stat = "count", aes(label = ..count..), vjust = -0.5, size = 3) + # Adds count labels
+  labs(
+    title = "Distribution of Hike Ratings",
+    caption = "Visualization by Wandi Dlamini",
+    x = "Rating",
+    y = "Number of Hikes"
+  ) +
+  theme_minimal() 
+```
+

@@ -3,3 +3,31 @@ title: "Bivariate Viz"
 ---
 
 Use this file to generate a professional looking **bivariate** visualization.  The visualization will not perfect the first time but you are expected to improve it throughout the semester especially after covering advanced topics such as effective viz.
+```{r, message = FALSE}
+library(tidyverse)
+library(ggplot2)
+```
+
+```{r}
+weather <- read.csv("https://mac-stat.github.io/data/weather_3_locations.csv")
+```
+
+
+```{r}
+#| fig-cap: "Density plots of 3pm temperatures in 3 Australian locations."
+#| fig-alt: "This vizualization is attempting to determine whether or not we can use temperatures at 3pm to predict temperatures at 9,. This is the link to the original csv file https://mac-stat.github.io/data/weather_3_locations.csv"
+ggplot(weather, aes(x = temp3pm, fill = location)) +
+  geom_density(alpha = 0.5) + 
+  facet_wrap(~location) + 
+  scale_fill_viridis_d(option = "plasma") +  
+  labs(
+    title = "Distribution of 3PM Temperatures by Location",
+    caption = "Visualization by Wandi Dlamini",
+    x = "Temperature at 3PM (°C)",
+    y = "Density",
+    fill = "Location"
+  ) +
+  theme_minimal() 
+
+```
+

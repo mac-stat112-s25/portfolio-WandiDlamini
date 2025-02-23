@@ -3,3 +3,78 @@ title: "Spatial Viz"
 ---
 
 Use this file to generate a professional looking **spatial** visualization.  The visualization will not perfect the first time but you are expected to improve on it throughout the semester especially after covering advanced topics such as effective viz.
+
+```{r, message=FALSE}
+library(tidyverse)
+library(ggplot2)
+library(leaflet)
+library(gplots)
+library(rnaturalearthhires)
+library(rnaturalearth)
+library(mosaic)
+library(sf)
+library(maps)
+library(RColorBrewer)
+library(socviz)
+```
+
+```{r}
+elections_by_state <-  read.csv("https://mac-stat.github.io/data/election_2020_by_state.csv")
+elections_by_counties <- read.csv("https://mac-stat.github.io/data/election_2020_county.csv")
+```
+
+```{r}
+elections_by_state <- elections_by_state |> 
+  filter(state_abbr != "DC") |> 
+  select(state_name, state_abbr, repub_pct_20) |> 
+  mutate(repub_20_categories = 
+           cut(repub_pct_20, 
+               breaks = seq(30, 70, by = 5), 
+               labels = c("30-34", "35-39", "40-44", "45-49",
+                          "50-54", "55-59", "60-64", "65-70"), 
+               include.lowest = TRUE))
+
+elections_by_counties <- elections_by_counties |> 
+  select(state_name, state_abbr, county_name, county_fips,
+          repub_pct_20, median_age, median_rent) |> 
+  mutate(repub_20_categories = 
+           cut(repub_pct_20, 
+               breaks = seq(0, 100, by = 10),
+               labels = c("0-9", "10-19", "20-29", "30-39", "40-49",
+                          "50-59", "60-69", "70-79", "80-89", "90-100"),
+               include.lowest = TRUE))
+```
+
+```{r}
+elections_by_counties <- elections_by_counties |> 
+  mutate(county_fips = as.character(county_fips)) |> 
+  mutate(county_fips = 
+           ifelse(nchar(county_fips) == 4, paste0("0", county_fips), county_fips))
+```
+
+```{r}
+#| fig-cap: "A chloropleth map showcasing the 2020 Republican Voting Results by County"
+#| fig-alt: "This chloropleth plot aims to look at the country-level distribution of republican votes in the 2020 U.S. Presidential Election. There is a larger density of republican votes in the more central and southern areas of the U.S. "
+
+ggplot(elections_by_counties, aes(map_id = county_fips, fill = repub_20_categories)) +
+  geom_map(map = county_map, color = "gray90", size = 0.05) +  # Lighter boundary lines
+  scale_fill_manual(values = rev(brewer.pal(10, "RdBu")), name = "% Republican") +
+  expand_limits(x = county_map$long, y = county_map$lat) +
+  theme_void() +  # Clean background with no gridlines
+  labs(
+    title = "2020 Republican Voting by County",
+    caption = "Visualization by Wandi Dlamini",
+    subtitle = "County-level distribution of Republican vote share in the 2020 U.S. Presidential Election",
+    fill = "% Republican"
+  ) +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
+    plot.subtitle = element_text(hjust = 0.5, size = 12),
+    legend.position = "bottom",  # Moving the legend to the bottom for space
+    legend.title = element_text(size = 10),
+    legend.text = element_text(size = 8),
+    plot.margin = margin(10, 10, 10, 10)  # Ensuring there’s space around the map
+  ) +
+  coord_equal() 
+```
+

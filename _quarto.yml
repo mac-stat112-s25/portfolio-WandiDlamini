@@ -4,7 +4,7 @@ project:
 
 book:
   title: "COMP/STAT112 Notebook"
-  author: "Your Name Here"
+  author: "Wandi Dlamini"
   date: today
   reader-mode: true
   page-navigation: true
@@ -13,7 +13,7 @@ book:
   
   
   sidebar:
-    title: "Your Name Here"
+    title: "Wandi Dlamini"
     collapse-level: 2
     style: "docked"
     pinned: true
@@ -22,7 +22,7 @@ book:
   
   chapters:
     - index.qmd
-
+     
     - part: "Best Work"
       chapters: 
       - bw/bw-uni.qmd
@@ -32,11 +32,13 @@ book:
       - bw/bw-spatial.qmd
 
     - part: "In-class Activities"
-      chapters: 
+      chapters:
+      - ica/quarto-demo.qmd
       - ica/ica-uni.qmd
       - ica/ica-bi.qmd
       - ica/ica-multi.qmd
       - ica/ica-spatial.qmd
+      - ica/ica-effective.qmd
 
 format:
   html:

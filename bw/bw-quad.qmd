@@ -3,3 +3,35 @@ title: "Quadvariate Viz"
 ---
 
 Use this file to generate a professional looking **quadvariate** visualization.  The visualization will not perfect the first time but you are expected to improve on it throughout the semester especially after covering advanced topics such as effective viz.
+
+```{r, message=FALSE}
+library(ggplot2)
+library(tidyverse)
+```
+
+```{r}
+education <- read.csv("https://mac-stat.github.io/data/sat.csv")
+```
+
+```{r}
+#| fig-cap: "The Impact of Spending and Salaries on SAT Scores by Participation"
+#| fig-alt: "This scatterplot aims to account for the confounding variable that skews the relationship between SAT Scores and Expenditure and Teacher Salary. This is done by recreating the trivariate plot in Trivariate Best Work. Then we execute a facet and split the data into groups by participation, specifically by the proportion of students who actually take the SATs per state."
+
+ggplot(education, aes(x = expend, y = sat, color = salary)) +
+  geom_point(size = 1, alpha = 0.5) +  
+  facet_wrap(~fracCat, scales = "free", ncol = 2) +  
+  geom_smooth(method = "lm", se = TRUE, linetype = "dashed") +  
+  scale_color_viridis_c(option = "plasma") +  
+  labs(
+    title = "Impact of Spending & Salaries on SAT Scores by Participation",
+    caption = "Visualization by Wandi Dlamini",
+    x = "Expenditure ($)",
+    y = "SAT Scores",
+    color = "Teacher Salary ($)"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 14, face = "bold"),
+    strip.text = element_text(size = 12, face = "bold"))
+```
+

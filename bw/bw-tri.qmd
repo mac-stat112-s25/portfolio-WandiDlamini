@@ -3,3 +3,30 @@ title: "Trivariate Viz"
 ---
 
 Use this file to generate a professional looking **trivariate** visualization.  The visualization will not perfect the first time but you are expected to improve on it throughout the semester especially after covering advanced topics such as effective viz.
+
+```{r, message=FALSE}
+library(tidyverse)
+library(ggplot2)
+```
+
+```{r}
+education <- read.csv("https://mac-stat.github.io/data/sat.csv")
+```
+
+```{r}
+#| fig-cap: " The Relationship between Education Expenditure, Teacher's Salary and SAT Scores "
+#| fig-alt: "This scatterplot showcases the relationship between education, expenditure of educational resources and teachers salary.In the later parts of the in class activity, we see that there is a confounding variable that is skewing the relationship between SAT scores and salaries/expenditure. Once we account for the proportion of students who actually take the SATs per state, the trend we observe becomes less unusual."
+
+ggplot(education, aes(x = expend, y = sat, color = salary)) +
+  geom_point(size = 2, alpha = 0.5) +  
+  geom_smooth(method = "lm", se = TRUE, linetype = "dashed") +  
+  scale_color_viridis_c(option = "plasma") +  
+  labs(
+    title = "Relationship Between Education Expenditure, Teacher's Salary and SAT Scores",
+    caption = "Visualization by Wandi Dlamini",
+    x = "Expenditure per Student ($)",
+    y = "SAT Scores",
+    color = "Teacher Salary ($)"
+  ) +
+  theme_minimal()
+

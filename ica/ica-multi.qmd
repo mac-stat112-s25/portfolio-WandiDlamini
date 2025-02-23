@@ -3,3 +3,142 @@ title: "Mulivariate Viz"
 ---
 
 Use this file for practice with the **mulivariate viz** in-class activity.  Refer to the class website for details.
+
+```{r}
+library(tidyverse)
+library(ggplot2)
+```
+
+```{r}
+# Import and check out data
+education <- read.csv("https://mac-stat.github.io/data/sat.csv")
+head(education)
+```
+
+
+**Exercise 1: SAT Scores**
+
+*Part A*
+Construct a plot of how the average sat scores vary from state to state. (Just use 1 variable – sat not State!)
+
+
+```{r}
+ggplot(education, aes(x=sat)) +
+  geom_histogram(color = "white")
+```
+
+```{r}
+ggplot(education, aes(x=sat)) +
+  geom_density()
+```
+
+
+*Part B*
+Summarize your observations from the plot. Comment on the basics: range, typical outcomes, shape. (Any theories about what might explain this non-normal shape?)
+
+-bimodal pattern
+
+-major mode is at a frequency of 6 (this means that the sat score that happened the most frequent was ~900)
+
+-minor mode is at a frequency of ~4 (second most common sat score is ~ 1050)
+
+-uncommon to get an sat score in the 850s and 1100s
+
+
+**Exercise 2: SAT Scores vs Per Pupil Spending & SAT Scores vs Salarie**
+
+*Part A*
+
+```{r}
+# Construct a plot of sat vs expend
+# Include a "best fit linear regression model" (HINT: method = "lm")
+ggplot(education, aes(x=expend, y = sat))+
+  geom_point()+
+  geom_smooth(method="lm")
+```
+
+
+```{r}
+# Construct a plot of sat vs salary
+# Include a "best fit linear regression model" (HINT: method = "lm")
+ggplot(education, aes(x=salary, y=sat))+
+  geom_point()+
+  geom_smooth(method="lm")
+```
+
+
+*Part B*
+What are the relationship trends between SAT scores and spending? Is there anything that surprises you?
+
+-Expend - how much a state spends on education 
+
+-Salary - typical teacher's salary
+
+**Both relationships follow the same trends. As the amount of money a state spends on education increases, there is a general decline in SAT scores. As the typical salary of teacher increases, we see a general decline in SAT scores. Pretty weird; did not expect that.**
+
+
+**Exercise 3: SAT Scores vs Per Pupil Spending and Teacher Salaries**
+Construct one visualization of the relationship of sat with salary and expend. HINT: Start with just 2 variables and tweak that code to add the third variable. Try out a few things!
+```{r}
+ggplot(education, aes(x=expend, y=sat, color=salary))+
+  geom_point()+
+  geom_smooth(method="lm")
+```
+
+**Exercise 4: Another way to Incorporate Scale**
+
+Construct the plot below. Check out the code and think about what’s happening here. What happens if you change “2” to “3”?. 
+
+
+```{r}
+ggplot(education, aes(y = sat, x = salary, color = cut(expend, 2))) + 
+  geom_point() + 
+  geom_smooth(se = FALSE, method = "lm")
+```
+**The cut() function groups the data**
+
+Describe the trivariate relationship between sat, salary, and expend.
+
+**There is a general decline overall in average SAT scores as salary and expenditure increases**
+
+
+
+**Exercise 5: Finally an Explanation**
+
+*Part A*
+Build a univariate viz of fracCat to better understand how many states fall into each category. (the fraction of a state’s students that actually take the SAT.)
+
+```{r}
+ggplot(education, aes(x=fracCat))+
+  geom_bar()
+```
+
+
+*Part B*
+Build 2 bivariate visualizations that demonstrate the relationship between sat and fracCat. What story does your graphic tell and why does this make contextual sense?
+
+```{r}
+ggplot(education, aes(x=sat, fill=fracCat))+
+  geom_density()+
+  facet_wrap(~fracCat)
+```
+
+*Part C*
+Make a trivariate visualization that demonstrates the relationship of sat with expend AND fracCat.
+```{r}
+ggplot(education, aes(x= expend, y = sat))+
+  geom_point()+
+  facet_wrap(~fracCat)+
+  geom_smooth(method="lm")
+```
+Highlight the differences in fracCat groups through color AND unique trend lines. What story does your graphic tell?
+Does it still seem that SAT scores decrease as spending increases?
+
+**Now we see a general increase in SAT scores as the amount of money spent on education and resources (expend) increases once we account for the fraction of a state’s students that actually take the SAT.**
+
+*Part D*
+Putting all of this together, explain this example of Simpson’s Paradox. That is, why did it appear that SAT scores decrease as spending increases even though the opposite is true?
+
+*Simpson's paradox* is a phenomenon in probability and statistics in which a trend appears in several groups of data but disappears or reverses when the groups are combined.
+In this case, we see that fraCat is a confounding variable. It skews the relationship between SAT scores and salaries/expenditure. Once we account for the proportion of students who actually take the SATs per state, it no longer skew the data.
+
