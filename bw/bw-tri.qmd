@@ -29,4 +29,4 @@ ggplot(education, aes(x = expend, y = sat, color = salary)) +
     color = "Teacher Salary ($)"
   ) +
   theme_minimal()
-
+```
