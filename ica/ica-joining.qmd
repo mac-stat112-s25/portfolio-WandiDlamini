@@ -1,0 +1,319 @@
+---
+title: "Joining"
+---
+
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(socviz)
+library(RColorBrewer)  
+library(ggthemes)
+```
+Exercise 1: Where are my keys?
+
+Part a
+
+```{r}
+students_2 <- data.frame(
+  student = c("D", "E", "F"),
+  class = c("COMP 101", "BIOL 101", "POLI 101")
+)
+
+# Check it out
+students_2
+```
+
+```{r}
+enrollments_2 <- data.frame(
+  course = c("ART 101", "BIOL 101", "COMP 101"),
+  enrollment = c(18, 20, 19)
+)
+
+# Check it out
+enrollments_2
+```
+
+
+# ```{r}
+# # eval = FALSE: don't evaluate this chunk when knitting. it produces an error.
+# students_2 |> 
+#   left_join(enrollments_2)
+# ```
+
+The error occurs because you are trying to left_join the two data frames (students_2 and enrollments_2), but the columns you're joining on aren't explicitly defined. When you use left_join() without specifying the by argument, R will try to join the two tables based on columns with the same name.
+
+Part b
+
+```{r}
+students_2 |> 
+  left_join(enrollments_2, by = c("class" = "course"))
+```
+
+# ```{r}
+# # The order of the keys is important:
+# # by = c("left data key" = "right data key")
+# # The order is mixed up here, thus we get an error:
+# students_2 |> 
+#   left_join(enrollments_2, by = c("course" = "class"))
+# ```
+
+Part c
+
+```{r}
+# Add student grades in each course
+students_3 <- data.frame(
+  student = c("Y", "Y", "Z", "Z"),
+  class = c("COMP 101", "BIOL 101", "POLI 101", "COMP 101"),
+  grade = c("B", "S", "C", "A")
+)
+
+# Check it out
+students_3
+```
+
+
+```{r}
+# Add average grades in each course
+enrollments_3 <- data.frame(
+  class = c("ART 101", "BIOL 101","COMP 101"),
+  grade = c("B", "A", "A-"),
+  enrollment = c(20, 18, 19)
+)
+
+# Check it out
+enrollments_3
+```
+
+```{r}
+students_3 |> 
+  left_join(enrollments_3)
+```
+
+Part d
+
+The issue here is that our datasets have 2 column names in common: class and grade. BUT grade is measuring 2 different things here: individual student grades in students_3 and average student grades in enrollments_3.
+
+We can again solve this by specifying that we want to join the datasets using the class variable or key
+
+```{r}
+students_3 |> 
+  left_join(enrollments_3, by = c("class" = "class"))
+```
+
+
+Exercise 2: More Small Practice
+
+```{r}
+# People who have voted
+voters <- data.frame(
+  id = c("A", "D", "E", "F", "G"),
+  times_voted = c(2, 4, 17, 6, 20)
+)
+
+voters
+```
+
+
+```{r}
+# Contact info for voting age adults
+contact <- data.frame(
+  name = c("A", "B", "C", "D"),
+  address = c("summit", "grand", "snelling", "fairview"),
+  age = c(24, 89, 43, 38)
+)
+
+contact
+```
+
+```{r}
+# 1. We want contact info for people who HAVEN'T voted
+contact |> 
+  anti_join(voters, by = c("name" = "id"))
+
+# 2. We want contact info for people who HAVE voted
+
+contact |> 
+  semi_join(voters, by = c("name" = "id"))
+
+# 3. We want any data available on each person
+
+contact |> 
+  full_join(voters, by = c("name" = "id"))
+
+# 4. When possible, we want to add contact info to the voting roster
+
+voters |> 
+  full_join(contact, by = c("id" = "name"))
+```
+
+Exercise 3: Bigger Datasets
+
+```{r}
+#| echo: false
+
+# Get rid of some duplicate rows!
+grades <- read.csv("https://mac-stat.github.io/data/grades.csv") |> 
+  distinct(sid, sessionID, .keep_all = TRUE)
+head(grades)
+```
+```{r}
+#| echo: false
+
+courses <- read.csv("https://mac-stat.github.io/data/courses.csv")
+head(courses)
+```
+
+
+```{r}
+# How many observations (rows) and variables (columns) are there in the grades data?
+dim(grades)
+
+# How many observations (rows) and variables (columns) are there in the courses data?
+dim(courses)
+```
+
+Exercise 4: Class Size
+
+```{r}
+courses |> 
+  count(sessionID) |> 
+  filter(n > 1)
+```
+
+```{r}
+courses |> 
+  filter(sessionID == "session2047")
+```
+
+```{r}
+courses_combined <- courses |>
+  group_by(sessionID) |>
+  summarize(enroll = sum(enroll))
+
+# Check that this has 1695 rows and 2 columns
+dim(courses_combined)
+```
+
+Part b
+
+```{r}
+courses_combined |> 
+  summarize(median(enroll))
+```
+
+Part c
+
+```{r}
+student_class_size <- grades |> 
+  left_join(courses_combined) |> 
+  group_by(sid) |> 
+  summarize(med_class = median(enroll))
+
+head(student_class_size)
+```
+
+Part d
+```{r}
+ggplot(student_class_size, aes(x = med_class)) +
+  geom_histogram(color = "white")
+```
+
+
+
+Exercise 5:Narrowing in on Classes
+
+Part a
+
+```{r}
+grades |> 
+  filter(sessionID == "session1986")
+```
+Part b
+
+```{r}
+dept_E <- courses |> 
+  filter(dept == "E")
+```
+
+```{r}
+grades |> 
+  semi_join(dept_E)
+```
+
+Exercise 6: All the Wrangling
+
+```{r}
+gpa_conversion <- tibble(
+  grade = c("A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D+", "D", "D-", "NC", "AU", "S"), 
+  gp = c(4.3, 4, 3.7, 3.3, 3, 2.7, 2.3, 2, 1.7, 1.3, 1, 0.7, 0, NA, NA)
+)
+
+gpa_conversion
+```
+
+
+Part a
+
+```{r}
+courses |> 
+  group_by(dept) |> 
+  summarize(total = sum(enroll)) |> 
+  arrange(desc(total))
+```
+
+Part b
+
+```{r}
+grades |> 
+  left_join(gpa_conversion) |> 
+  group_by(sid) |> 
+  summarize(mean(gp, na.rm = TRUE))
+```
+
+Part c
+
+```{r}
+grades |> 
+  left_join(gpa_conversion) |> 
+  group_by(sid) |> 
+  summarize(gpa = mean(gp, na.rm = TRUE)) |> 
+  summarize(median(gpa))
+```
+
+Part d
+
+```{r}
+# There are lots of approaches here!
+grades |> 
+  left_join(gpa_conversion) |> 
+  mutate(below_b_plus = (gp < 3.3)) |> 
+  summarize(mean(below_b_plus, na.rm = TRUE))
+```
+
+Part e
+
+```{r}
+grades |> 
+  left_join(gpa_conversion) |> 
+  left_join(courses) |> 
+  group_by(iid) |> 
+  summarize(gpa = mean(gp, na.rm = TRUE)) |> 
+  arrange(gpa)
+```
+
+Part f
+
+```{r}
+cross_listed <- courses |> 
+  count(sessionID) |> 
+  filter(n > 1)
+
+grades |> 
+  anti_join(cross_listed) |> 
+  inner_join(courses) |> 
+  left_join(gpa_conversion) |> 
+  group_by(dept) |> 
+  summarize(gpa = mean(gp, na.rm = TRUE)) |> 
+  arrange(gpa)
+```
+

@@ -1,0 +1,288 @@
+---
+title: "Dates"
+---
+
+
+
+```{r}
+library(tidyverse)
+library(mosaic)
+```
+
+
+Exercise 1: More Filtering
+```{r}
+penguins <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-07-28/penguins.csv')
+head(penguins)
+```
+
+Part a
+
+```{r}
+# Create a dataset with just Adelie and Chinstrap using %in%
+# Pipe this into `count(species)` to confirm that you only have these 2 species
+penguins |> 
+ filter(species %in% c("Adelie", "Chinstrap")) |> 
+  count(species)
+```
+```{r}
+# Create a dataset with just Adelie and Chinstrap using !=
+# Pipe this into `count(species)` to confirm that you only have these 2 species
+penguins |> 
+  filter(species != c("Gentoo")) |> 
+  count(species)
+```
+
+
+
+
+
+Exercise 2: More Selecting
+
+```{r}
+# First: recall the variable names
+names(penguins)
+```
+
+
+```{r}
+# Use a shortcut to keep everything but the year and island variables
+penguins |> 
+  select(-island, -year)
+
+```
+
+
+```{r}
+# Use a shortcut to keep only species and the penguin characteristics measured in mm
+penguins |>
+  select(species, contains("mm"))
+
+```
+
+```{r}
+# Use a shortcut to keep only species and bill-related measurements
+penguins |>
+  select(species, contains("bill"))
+```
+
+```{r}
+# Use a shortcut to keep only species and the length-related characteristics
+penguins |>
+  select(species, contains("length"))
+```
+
+Exercise 3: Arranging, Counting, & Grouping by Multiple Variables
+
+```{r}
+# Change this code to sort the penguins by species, and then island name
+# NOTE: The first row should be an Adelie penguin living on Biscoe island
+penguins |> 
+  arrange(species, island)
+```
+
+```{r}
+# Change this code to count the number of male/female penguins observed for each species
+penguins |>
+  count(species, sex)
+```
+```{r}
+# Change this code to calculate the average body mass by species and sex
+penguins |> 
+  group_by(species, sex) |> 
+  summarize(mean = mean(body_mass_g, na.rm = TRUE))
+```
+
+Exercise 4: Dates
+
+Part A
+
+```{r}
+# Get today's date
+as.Date(today())
+```
+
+
+```{r}
+# Let's store this as "today" so we can work with it below
+today <- as.Date(today())
+
+# Check out the class of this object
+class(today)
+```
+
+```{r}
+year(today)
+```
+```{r}
+# What do these lines produce / what's their difference? (The number v.s string version of February)
+month(today)
+```
+
+```{r}
+month(today, label = TRUE)
+```
+
+
+```{r}
+# What does this number mean? (The 9th week of the year)
+week(today)
+```
+```{r}
+# What do these lines produce / what's their difference? (The date)
+mday(today)
+```
+
+```{r}
+yday(today)  # This is often called the "Julian day" - (The 57th day of the year)
+```
+```{r}
+# What do these lines produce / what's their difference? (The 4th day of the week - wednesday)
+wday(today)
+```
+
+```{r}
+#prints day of the week as string 
+wday(today, label = TRUE)
+```
+
+```{r}
+# What do the results of these 2 lines tell us? - Checking to see if the date inputed here is the same or greater or less than than the date of today. Outputs true or false
+today >= ymd("2024-02-14")
+today < ymd("2024-02-14")
+```
+
+
+Part B
+
+```{r}
+data("Birthdays")
+head(Birthdays)
+```
+
+```{r}
+# How many days of data do we have for each state?
+Birthdays |>
+  count(state)
+
+# How many total births were there in this time period?
+Birthdays |>
+  summarize(sumBirths = sum(births))
+
+# How many total births were there per state in this time period, sorted from low to high?
+Birthdays |>
+  group_by(state) |>
+  summarize(totBirths = sum(births)) |>
+  arrange(totBirths)
+```
+```{r}
+daily_births <- Birthdays |>
+  group_by(date, wday) |>
+  mutate(totalBirths = sum(births)) |>
+  select(state, date, wday, totalBirths)
+
+head(daily_births)
+  
+
+  
+```
+```{r}
+ggplot(daily_births, aes(x=date, y =totalBirths, color = wday))+
+  geom_line()
+```
+Exercise 7: Wrangle and Plot
+
+```{r}
+penguins |> 
+  filter(species != "Gentoo") |> 
+  ggplot(aes(y = bill_length_mm, x = bill_depth_mm, color = species)) + 
+    geom_point()
+```
+Part a 
+Calculate the total number of births in each month and year, eg, Jan 1969, Feb 1969, …. Label month by names not numbers, eg, Jan not 1. Then, plot the births by month and comment on what you learn.
+
+```{r}
+Birthdays |>
+  group_by(year, month) |>
+  summarise(total_births = sum(births)) |>
+  mutate(month_name = factor(month.abb[month], levels = month.abb)) |> # Convert month numbers to names (Jan), w/o levels = month.abb, months appear alphabet.
+  ggplot(aes(x = month_name, y = total_births, group = year, color = factor(year))) + #allows for discrete colors per year instead of a gradient
+  geom_line() +
+  geom_point() +
+  labs(title = "Total Births by Month and Year",
+       x = "Month",
+       y = "Total Births",
+       color = "Year") +
+  theme_minimal()
+```
+Lowest total number of births in the year ~1975/6
+Highest total number of births in the year ~1969
+Overall, February has the lowest total number of births
+August has the overall highest number of births
+Each year follows the same general increase/decrease patterns throughout the months
+
+Part b
+In 1988, calculate the total number of births per week in each state. Get rid of week “53”, which isn’t a complete week! Then, make a line plot of births by week for each state and comment on what you learn. For example, do you notice any seasonal trends? Are these the same in every state? Any outliers?
+
+```{r}
+Birthdays |>
+  mutate(week = week(date)) |> 
+  filter(year == 1988, week != 53) |>  # Keep only 1988 and remove week 53
+  group_by(state, week) |>
+  summarise(total_births = sum(births)) |>
+  ggplot(aes(x = week, y = total_births, color = state)) +
+  geom_line(alpha = 0.7) +  # Transparency for better visualization
+  labs(title = "Weekly Births by State in 1988",
+       x = "Week of Year",
+       y = "Total Births",
+       color = "State") +
+  theme_minimal()
+```
+
+
+Part c
+Repeat the above for just Minnesota (MN) and Louisiana (LA). MN has one of the coldest climates and LA has one of the warmest. How do their seasonal trends compare? Do you think these trends are similar in other colder and warmer states? Try it!
+```{r}
+Birthdays |>
+  mutate(week = week(date)) |> 
+  filter(year == 1988, week != 53, state %in% c("MN", "LA")) |>  # Keep only 1988 and remove week 53
+  group_by(state, week) |>
+  summarise(total_births = sum(births), .groups = "drop") |>
+  ggplot(aes(x = week, y = total_births, group = state, color = state)) +
+  geom_line(alpha = 0.7) +  # Transparency for better visualization
+  labs(title = "Weekly Births by State in 1988",
+       x = "Week of Year",
+       y = "Total Births",
+       color = "State") +
+  theme_minimal()
+```
+Exercise 8: More Practice
+
+Part a
+Create a dataset with only births in Massachusetts (MA) in 1979 and sort the days from those with the most births to those with the fewest.
+```{r}
+ Birthdays |>
+  filter(year == 1979, state == "MA") |>  # Filter for 1979 and Massachusetts
+  group_by(date) |>  # Group by day
+  summarise(total_births = sum(births), .groups = "drop") |>  # Summarize births per day
+  arrange(desc(total_births)) |>
+  ggplot(aes(x = date, y = total_births)) +
+  geom_line(alpha = 0.7) +  
+  labs(title = "Daily Births in Massachusetts (1979)",
+       x = "Date",
+       y = "Total Births") +
+  theme_minimal()
+```
+
+Part b
+Make a table showing the five states with the most births between September 9, 1979 and September 12, 1979, including the 9th and 12th. Arrange the table in descending order of births.
+
+```{r}
+Birthdays |>
+  filter(date >= as.Date("1979-09-09") & date <= as.Date("1979-09-12")) |>  # Filter for the date range
+  group_by(state) |>  # Group by state
+  summarise(total_births = sum(births), .groups = "drop") |>  # Summarize births by state
+  arrange(desc(total_births)) |>  # Arrange by descending order of total births
+  head(5)
+```
+

@@ -1,0 +1,186 @@
+---
+title: "Data Import"
+---
+
+Exercise 2
+
+
+```{r}
+library(tidyverse)
+imdb_messy <- read_csv("~/Documents/Github/portfolio-WandiDlamini/data/imdb_5000_messy.csv") #absolute file path
+```
+
+Part b
+
+```{r}
+# This should be the folder where you stored this qmd!
+getwd()
+```
+
+Part c
+
+```{r}
+imdb_temp <- read_csv("../data/imdb_5000_messy.csv") #relative file path
+```
+
+
+Exercise 3: Check Data
+
+Part a
+
+
+Part b
+
+```{r}
+imdb_messy |>
+  mutate(across(where(is.character), as.factor)) |>  # convert characters to factors in order to summarize
+  summary()
+```
+
+
+What type of info is provided on quantitative variables? 
+num_critic_for_reviews, duration, director_facebook_likes, actor_3_facebook_likes, actor_2_facebook_likes, actor_1_facebook_likes, gross, num_voted_users, cast_total_facebook_likes, facenumber_in_poster, num_user_for_reviews, budget, title_year, imdb_score, aspect_ratio, movie_facebook_likes
+
+
+What type of info is provided on categorical variables?
+color, director_name, actor_3_name, actor_2_name, actor_1_name, genres, movie_title, plot_keywords, movie_imdb_link, language, country, content_rating, content_rating
+
+What stands out to you in these summaries? Is there anything you’d need to clean before using this data?
+Missing data points (NA)
+Inconsistent Categories: In the color variable, the dataset includes both "color" and "COLOR"
+Duplicated Movie Titles: Some movie titles are listed more than once (e.g., Ben-Hur, The Fast and the Furious). Depending on the research question, this could either be addressed by aggregating data or removing duplicates if they are irrelevant.
+
+Exercise 4: Factor Variables 1
+```{r}
+imdb_messy |> 
+  count(color)
+```
+
+Color technically takes 6 different categories but 3 of them are repeats of each other , where some are fully capitalized in spelling or only the first letter is capitalized, or everything is in small letters. The other category is the lack of data (NA). Finally black and white is also duplicated.
+
+Exercise 5: Factor Variables 2
+
+Part a
+
+Scalability: Handles large datasets more efficiently than spreadsheets.
+
+Traceability: Keeps a record of each cleaning step for easy review.
+
+Minimizing Human Error: Reduces risk of mistakes compared to manual edits.
+
+Version Control: Enables tracking changes with Git for collaboration and rollback.
+
+Integration: Seamlessly continues analysis without exporting data.
+
+Consistency: Ensures the same cleaning steps are applied across all data.
+
+Documentation and Sharing: Combines code and results in one reproducible file
+
+Part b
+
+```{r}
+imdb_temp <- imdb_messy |>
+  mutate(color = fct_recode(color,
+                            "Color" = "COLOR",
+                            "Color" = "color",
+                            "Black_White" = "B&W",
+                            "Black_White" = "Black and White"))
+
+imdb_temp |> 
+  count(color)
+  
+  
+```
+
+Part c
+
+```{r}
+imdb_temp <- imdb_messy |> 
+  mutate(color = str_replace(color, "COLOR", "Color"),
+         color = str_replace(color, "color", "Color"),
+         color = str_replace(color, "B&W", "Black_White"),
+         color = str_replace(color, "Black and White", "Black_White"))
+
+imdb_temp |> 
+  count(color)
+```
+
+
+Exercise 6: Clean Data: Missing Data 1
+
+Part a
+
+```{r}
+# Count the total number of rows in imdb_messy
+nrow(imdb_messy)
+```
+
+```{r}
+# Then count the number of NAs in each column
+colSums(is.na(imdb_messy))
+```
+Part c
+
+```{r}
+imdb_messy |> 
+  filter(is.na(actor_1_facebook_likes))
+```
+
+Mainly documentaries with no actors so there wont be any facebook pages for nonexistent actors.
+
+Exercise 7: Clean Data: Missing Data 2
+
+Part a
+
+```{r}
+imdb_messy |> 
+  summarize(mean(duration, na.rm = TRUE))
+```
+
+We just remove the NAs from the calculation. No need to entirely remove the related movies from the dataset. (na.rm = TRUE)
+
+
+Part b
+
+```{r}
+imdb_temp <- drop_na(imdb_messy)
+nrow(imdb_temp)
+```
+
+```{r}
+colSums(is.na(imdb_temp))
+```
+Part c
+
+```{r}
+ggplot(imdb_messy, aes(x = duration, fill = color)) +
+  geom_density(alpha = 0.5) +
+  labs(x="Duration",
+       y = "Density",
+       fill = "Color")
+```
+
+```{r}
+# Approach 1
+imdb_temp <- imdb_messy |> 
+  select(duration, color) |> 
+  drop_na()
+dim(imdb_temp)
+```
+
+```{r}
+# Approach 2
+imdb_temp <- imdb_messy |> 
+  filter(!is.na(duration), !is.na(color))
+dim(imdb_temp)
+```
+
+```{r}
+# Plot
+ggplot(imdb_temp, aes(x = duration, fill = color)) +
+  geom_density(alpha = 0.5) +
+  labs(x="Duration",
+       y = "Density",
+       fill = "Color")
+```
+

@@ -1,0 +1,72 @@
+---
+title: "Solo Project"
+---
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, echo = FALSE)
+```
+
+```{r}
+library(ggplot2)
+library(tidyverse)
+library(sf)
+library (dplyr)
+library(scales)
+```
+
+```{r}
+#save province boundaries
+province_boundaries <- read_csv("~/Documents/Github/portfolio-WandiDlamini/bw/south_africa_Province_level_1.csv")
+province_boundaries <- st_as_sf(province_boundaries, wkt = "the_geom")
+province_boundaries <- st_simplify(province_boundaries, dTolerance = 0.01) 
+
+```
+
+```{r}
+#save crime data
+crimedata <- read.csv("~/Documents/Github/portfolio-WandiDlamini/bw/South Africa crime data.csv")
+```
+
+```{r}
+crimedatafinal <- crimedata |>
+  mutate(Province = recode(Province,"Kwazulu/Natal" = "KwaZulu-Natal")) |>
+  select(Province, X2015.2016) |>
+  group_by(Province) |>
+  summarize(crime_index = sum(X2015.2016))
+```
+
+
+```{r}
+province_boundaries <- province_boundaries |>
+  mutate(shape1 = recode(shape1, "Nothern Cape" = "Northern Cape"))
+```
+
+```{r}
+merged_dataset <- province_boundaries |>
+  left_join(crimedatafinal, by = c("shape1" = "Province")) |>
+  rename("Province" = "shape1")
+```
+
+```{r}
+merged_dataset |>
+  ggplot() +
+  geom_sf(aes(fill = crime_index)) +
+    scale_fill_continuous(high = "red", low = "green", labels = comma) +
+  theme_void() + 
+  labs(title = "Province-Level Distribution of Crime in South Africa from 2015 - 2016",
+       caption = "Visualization by Wandi Dlamini",
+       subtitle = "Total Cases of 'All Theft Not Mentioned Elsewhere' per Province",
+       fill = "Crime Count") +
+   theme(
+    plot.title = element_text(hjust = 0.5, size = 12, face = "bold"),
+    plot.subtitle = element_text(hjust = 0.5, size = 12),
+    legend.title = element_text(size = 10),
+    legend.text = element_text(size = 8),
+    plot.margin = margin(10, 10, 10, 10)) 
+```
+
+Between 2015 and 2016, South Africa's crime landscape was largely shaped by Gauteng, which recorded the highest crime density. As the country's most densely populated province, home to major urban centers like Johannesburg and Pretoria, Gauteng experienced a significant volume of criminal activities. Following closely behind was the Western Cape, which includes Cape Town—a bustling metropolis and popular tourist destination. This province also faced high crime rates, especially in areas struggling with socioeconomic challenges.
+
+KwaZulu-Natal, known for its large population and expansive coastline, ranked third in crime density. While it still experienced considerable criminal activity, its crime rates were somewhat lower than those of Gauteng and the Western Cape. In contrast, the Northern Cape, the largest yet sparsely populated province, reported the lowest crime density. Its vast size and low population density contributed to fewer reported incidents of crime.
+
+This choropleth map visually highlights the uneven distribution of crime across South African provinces during this period, drawing attention to high-crime regions like Gauteng while also shedding light on provinces with lower crime rates, such as the Northern Cape.

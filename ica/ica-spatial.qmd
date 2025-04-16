@@ -108,7 +108,7 @@ world_boundaries <- ne_countries(returnclass = "sf")
 ```{r}
 # What does this code produce?
 # What geom are we using for the point map?
-ggplot(world_boundaries) + 
+ ggplot(world_boundaries) + 
   geom_sf()
 ```
 ```{r}

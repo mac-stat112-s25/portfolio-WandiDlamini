@@ -2,9 +2,13 @@
 title: "Univariate Viz"
 ---
 
+```{r, include=FALSE}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, echo = FALSE)
+```
+
 Use this file to generate a professional looking **univariate** visualization. The visualization will not perfect the first time but you are expected to improve on it throughout the semester especially after covering advanced topics such as effective viz.
 
-```{r, messaege = FALSE}
+```{r, message = FALSE}
 library(tidyverse)
 ```
 

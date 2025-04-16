@@ -1,0 +1,88 @@
+---
+title: "Strings"
+---
+
+```{r}
+library(tidyverse)
+```
+Exercise 1
+
+```{r}
+courses <- read.csv("https://mac-stat.github.io/data/registrar.csv")
+
+# Check it out
+head(courses)
+```
+
+```{r}
+# Construct a table that indicates the number of classes offered in each day/time slot
+# Print only the 6 most popular time slots
+courses |>
+  count(days, time) |>
+  arrange(desc(n)) |>
+  head()
+```
+
+
+Exercise 2
+
+```{r}
+courses_clean <- courses |> 
+  separate(avail_max, c("avail", "max"), sep = " / ") |> 
+  mutate(enroll = as.numeric(max) - as.numeric(avail)) |>  #convert a vector of character values into numeric values
+  separate(number, c("dept", "number", "section"))
+  
+head(courses_clean)
+```
+
+Exercise 3
+
+```{r} 
+# Identify the 6 departments that offered the most sections
+courses_clean |>
+  count(dept) |>
+  arrange(desc(n)) |>
+  head()
+  
+
+# Identify the 6 departments with the longest average course titles
+
+courses_clean |>
+  mutate(lengthString = str_length(name)) |>
+  group_by(dept) |>
+  summarize(avgLength = mean(lengthString)) |>
+  head()
+```
+
+Exercise 4
+
+Part a
+
+```{r}
+courses_clean |>
+  filter(instructor == "Alicia Johnson")
+```
+
+Part b
+
+```{r}
+stat <- courses_clean |>
+  filter(dept == "STAT") |>
+  mutate(name = str_replace(name, "Introduction to",""))|>
+  mutate(name = str_replace(name, "Statistical", "Stat")) |>
+  separate(time, c("StartTime", "EndTime"), sep = " - " ) |>
+  select(number, name, StartTime, enroll )
+head(stat)
+```
+
+
+Exercise 5
+
+```{r}
+courses_clean |>
+  filter(dept != "INTD" & dept != "PE") |>
+  filter(!(dept == "MUSI" & as.numeric(number) < 100)) |>
+  filter(!(dept == "THDA" & as.numeric(number) < 100)) |> 
+  filter(!str_detect(section, "L"))
+```
+

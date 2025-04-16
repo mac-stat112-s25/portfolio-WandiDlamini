@@ -1,0 +1,62 @@
+---
+title: "Exam 1"
+---
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, echo = FALSE)
+```
+
+```{r}
+library(tidytuesdayR)
+library(tidyverse)
+```
+
+
+```{r}
+tuesdata <- tt_load('2020-02-18')
+fc <- tuesdata$food_consumption
+```
+
+
+```{r}
+fc
+```
+
+
+```{r}
+#how many food categories and countries are there?
+unique(fc$food_category)
+length(unique(fc$food_category))
+
+unique(fc$country)
+length(unique(fc$country))
+```
+```{r}
+
+#looking at datatypes
+class(fc$country)
+class(fc$food_category)
+class(fc$consumption)
+```
+
+```{r}
+#|fig-height: 22
+#|fig-width: 11
+fc |>
+  filter(country == "South Africa" | country == "USA") |>
+  ggplot(aes(x = food_category, y = consumption, fill = country)) +
+  geom_col(position = "dodge") +
+  labs(Title = "What does the Consumption of each Food Category look like in South Africa?",
+       x= "Food Category",
+       y = "Consumption",
+       fill = "Country") +
+  facet_wrap(~country) +
+  theme(axis.text.x = element_text(angle = 45, vjust = .55)) 
+```
+
+![](IMG_3774.jpg)
+![](IMG_3775.jpg)
+![](IMG_3776.jpg)
+![](IMG_3777.jpg)
+![](IMG_3778.jpg)
+
