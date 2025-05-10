@@ -4,7 +4,7 @@ title: "Spatial Viz"
 ```{r, include=FALSE}
 knitr::opts_chunk$set(message = FALSE, warning = FALSE, echo = FALSE)
 ```
-Use this file to generate a professional looking **spatial** visualization.  The visualization will not perfect the first time but you are expected to improve on it throughout the semester especially after covering advanced topics such as effective viz.
+
 
 ```{r, message=FALSE}
 library(tidyverse)
@@ -55,7 +55,6 @@ elections_by_counties <- elections_by_counties |>
 ```
 
 ```{r}
-#| fig-cap: "A chloropleth map showcasing the 2020 Republican Voting Results by County"
 #| fig-alt: "This chloropleth plot aims to look at the country-level distribution of republican votes in the 2020 U.S. Presidential Election. There is a larger density of republican votes in the more central and southern areas of the U.S. "
 
 ggplot(elections_by_counties, aes(map_id = county_fips, fill = repub_20_categories)) +
@@ -65,7 +64,7 @@ ggplot(elections_by_counties, aes(map_id = county_fips, fill = repub_20_categori
   theme_void() +  # Clean background with no gridlines
   labs(
     title = "2020 Republican Voting by County",
-    caption = "Visualization by Wandi Dlamini",
+    caption = "https://mac-stat.github.io/data/election_2020_county.csv, Acquired: Feb 10, 2025",
     subtitle = "County-level distribution of Republican vote share in the 2020 U.S. Presidential Election",
     fill = "% Republican"
   ) +

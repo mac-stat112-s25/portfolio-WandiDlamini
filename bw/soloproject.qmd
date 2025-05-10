@@ -54,7 +54,7 @@ merged_dataset |>
     scale_fill_continuous(high = "red", low = "green", labels = comma) +
   theme_void() + 
   labs(title = "Province-Level Distribution of Crime in South Africa from 2015 - 2016",
-       caption = "Visualization by Wandi Dlamini",
+       caption = "https://www.kaggle.com/datasets/slwessels/crime-statistics-for-south-africa/code, Acquired: April 6th, 2025",
        subtitle = "Total Cases of 'All Theft Not Mentioned Elsewhere' per Province",
        fill = "Crime Count") +
    theme(

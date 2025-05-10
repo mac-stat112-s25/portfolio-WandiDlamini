@@ -34,7 +34,7 @@ fc |>
 
 
 ```{r}
-#order by descending order on the plot
+#order by ascending order on the plot
 fc |>
   filter(food_category == "Pork") |> 
   mutate(country = fct_reorder(country, consumption)) |>
